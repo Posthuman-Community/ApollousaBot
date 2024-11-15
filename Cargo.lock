@@ -8,6 +8,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "diesel",
+ "dotenvy",
  "log",
  "pretty_env_logger",
  "teloxide",
@@ -304,6 +305,12 @@ dependencies = [
  "quote",
  "syn 2.0.87",
 ]
+
+[[package]]
+name = "dotenvy"
+version = "0.15.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
 name = "dptree"
