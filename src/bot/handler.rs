@@ -1,9 +1,15 @@
-use crate::bot::commands::Command;
+use crate::{
+    bot::commands::Command,
+    db::action::{clear_reminder_time, set_reminder_time},
+};
 use teloxide::prelude::*;
 
 use chrono::naive::NaiveTime;
 
+use crate::db::establish_connection;
+
 pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<()> {
+    let conn = &mut establish_connection();
     match command {
         Command::Start => {
             bot.send_message(
@@ -16,7 +22,7 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
             let parsed_time = NaiveTime::parse_from_str(&time, "%H:%M");
             match parsed_time {
                 Ok(parsed_time) => {
-                    // TODO 更新数据库时间;
+                    set_reminder_time(conn, msg.chat.id, &parsed_time.format("%H:%M").to_string());
                     bot.send_message(
                         msg.chat.id,
                         format!("The reminder time is set to every day at {time}。"),
@@ -30,7 +36,7 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
             }
         }
         Command::Stop => {
-            // TODO 从数据库删除提醒时间;
+            clear_reminder_time(conn, msg.chat.id);
             bot.send_message(msg.chat.id, "The reminder time was deleted.")
                 .await?;
         }

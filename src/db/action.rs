@@ -12,9 +12,8 @@ pub fn set_reminder_time(conn: &mut SqliteConnection, _chat_id: ChatId, time: &s
         .expect("Error on setting reminder time");
 }
 
-pub fn clear_reminder_time(conn: &mut SqliteConnection, _chat_id: i64) {
-    diesel::delete(users.filter(chat_id.eq(_chat_id)))
-        .filter(chat_id.eq(_chat_id))
+pub fn clear_reminder_time(conn: &mut SqliteConnection, _chat_id: ChatId) {
+    diesel::delete(users.filter(chat_id.eq(_chat_id.0)))
         .execute(conn)
         .expect("Error on clearing reminder time");
 }

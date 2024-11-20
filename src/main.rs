@@ -3,6 +3,7 @@ use bot::handler::reply;
 use teloxide::prelude::*;
 
 mod bot;
+mod db;
 
 #[tokio::main]
 async fn main() {
