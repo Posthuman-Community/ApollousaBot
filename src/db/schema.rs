@@ -1,8 +1,9 @@
+// @generated automatically by Diesel CLI.
+
 diesel::table! {
-    users (id) {
-        id -> Integer,
+    users (chat_id) {
         chat_id -> BigInt,
         reminder_time -> Text,
-        last_reminder_time -> Nullable<Text>
+        last_reminder_time -> Nullable<Text>,
     }
 }
