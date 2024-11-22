@@ -5,6 +5,7 @@ use diesel::prelude::*;
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Users {
     pub chat_id: i64,
+    pub user_id: i64,
+    pub username: String,
     pub reminder_time: String,
-    pub last_reminder_time: Option<String>,
 }

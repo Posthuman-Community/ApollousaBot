@@ -11,10 +11,9 @@ use crate::db::establish_connection;
 type Bot = DefaultParseMode<teloxide::Bot>;
 
 pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<()> {
-    let user_id = &msg.from.clone().unwrap().id;
-    let username = &msg.from.unwrap().full_name();
-
-    let mentioned_user = html::user_mention(*user_id, username);
+    let user_id = msg.from.clone().unwrap().id;
+    let username = msg.from.clone().unwrap().full_name();
+    let mentioned_user = html::user_mention(user_id, &username);
 
     let conn = &mut establish_connection();
     match command {
@@ -29,10 +28,16 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
             let parsed_time = NaiveTime::parse_from_str(&time, "%H:%M");
             match parsed_time {
                 Ok(parsed_time) => {
-                    set_reminder_time(conn, msg.chat.id, &parsed_time.format("%H:%M").to_string());
+                    set_reminder_time(
+                        conn,
+                        msg.chat.id,
+                        user_id,
+                        &username,
+                        &parsed_time.format("%H:%M").to_string(),
+                    );
                     bot.send_message(
                         msg.chat.id,
-                        format!("Hi, {mentioned_user}, your reminder time is set to every day at {time}。"),
+                        format!("Hi, {mentioned_user}, your reminder time is set to every day at {time}."),
                     )
                     .await?;
                 }
@@ -48,7 +53,7 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
             }
         }
         Command::Stop => {
-            clear_reminder_time(conn, msg.chat.id);
+            clear_reminder_time(conn, msg.chat.id, user_id);
             bot.send_message(
                 msg.chat.id,
                 format!("{mentioned_user}, your reminder was deleted."),
