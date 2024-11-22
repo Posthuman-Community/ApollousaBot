@@ -3,6 +3,7 @@ use bot::handler::reply;
 use scheduler::reminder::schedule_reminders;
 use std::sync::Arc;
 use teloxide::prelude::*;
+use teloxide::types::ParseMode;
 use tokio::time::{interval, Duration};
 
 mod bot;
@@ -13,7 +14,7 @@ mod scheduler;
 async fn main() {
     pretty_env_logger::init();
 
-    let bot = Arc::new(Bot::from_env());
+    let bot = Arc::new(Bot::from_env().parse_mode(ParseMode::Html));
     let bot_clone = Arc::clone(&bot);
 
     tokio::spawn(async move {
