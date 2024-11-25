@@ -1,8 +1,14 @@
-use crate::db::schema::users::dsl::*;
+use crate::db::schema::timezone::dsl::{
+    chat_id as tz_chat_id, timezone, user_id as tz_user_id, user_timezone,
+};
+
+use crate::db::schema::users::dsl::{
+    chat_id as u_chat_id, reminder_time, user_id as u_user_id, username, users,
+};
 use diesel::prelude::*;
 use teloxide::types::{ChatId, UserId};
 
-use super::model::Users;
+use super::model::{UserTimezone, Users};
 
 pub fn set_reminder_time(
     conn: &mut SqliteConnection,
@@ -13,14 +19,33 @@ pub fn set_reminder_time(
 ) {
     diesel::insert_into(users)
         .values((
-            chat_id.eq(_chat_id.0),
-            user_id.eq(i64::try_from(_user_id.0).unwrap()),
+            u_chat_id.eq(_chat_id.0),
+            u_user_id.eq(i64::try_from(_user_id.0).unwrap()),
             username.eq(_username),
             reminder_time.eq(time),
         ))
-        .on_conflict(chat_id)
+        .on_conflict(u_chat_id)
         .do_update()
         .set(reminder_time.eq(time))
+        .execute(conn)
+        .expect("Error on setting reminder time");
+}
+
+pub fn set_user_timezone(
+    conn: &mut SqliteConnection,
+    _user_id: UserId,
+    _chat_id: ChatId,
+    _user_timezone: &str,
+) {
+    diesel::insert_into(timezone)
+        .values((
+            tz_chat_id.eq(_chat_id.0),
+            tz_user_id.eq(i64::try_from(_user_id.0).unwrap()),
+            user_timezone.eq(_user_timezone),
+        ))
+        .on_conflict(tz_chat_id)
+        .do_update()
+        .set(user_timezone.eq(_user_timezone))
         .execute(conn)
         .expect("Error on setting reminder time");
 }
@@ -28,13 +53,23 @@ pub fn set_reminder_time(
 pub fn clear_reminder_time(conn: &mut SqliteConnection, _chat_id: ChatId, _user_id: UserId) {
     diesel::delete(
         users.filter(
-            chat_id
+            u_chat_id
                 .eq(_chat_id.0)
-                .and(user_id.eq(i64::try_from(_user_id.0).unwrap())),
+                .and(u_user_id.eq(i64::try_from(_user_id.0).unwrap())),
         ),
     )
     .execute(conn)
     .expect("Error on clearing reminder time");
+
+    diesel::delete(
+        timezone.filter(
+            tz_chat_id
+                .eq(_chat_id.0)
+                .and(tz_user_id.eq(i64::try_from(_user_id.0).unwrap())),
+        ),
+    )
+    .execute(conn)
+    .expect("Error on clearing timezone");
 }
 
 pub fn get_user_reminders(conn: &mut SqliteConnection, t_now: &str) -> Vec<Users> {

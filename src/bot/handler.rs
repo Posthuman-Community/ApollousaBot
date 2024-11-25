@@ -1,6 +1,6 @@
 use crate::{
     bot::commands::Command,
-    db::action::{clear_reminder_time, set_reminder_time},
+    db::action::{clear_reminder_time, set_reminder_time, set_user_timezone},
 };
 use teloxide::{adaptors::DefaultParseMode, prelude::*, utils::html};
 
@@ -17,11 +17,12 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
 
     let conn = &mut establish_connection();
     match command {
-        Command::Start => {
+        Command::Help => {
             bot.send_message(
                 msg.chat.id,
-                format!("Hi, {mentioned_user}, Welcome to the Exercise Reminder Bot! Please use /settime <code>HH:MM</code> to set the reminder time",
-            ))
+                format!("Hi, {mentioned_user}, Welcome to the Exercise Reminder Bot! 😉\n\nPlease use <code>/settime HH:MM</code> to set the reminder time.\n\nAnd use <code>/settimezone +1:00</code> <b>(according to your location)</b> to accurate the reminder.\n\nIf you are not sure your timezone, please check this <a href=\"https://en.wikipedia.org/wiki/List_of_UTC_offsets\">page</a>.",
+                ),
+            )
             .await?;
         }
         Command::SetTime(time) => {
@@ -51,6 +52,16 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
                     .await?;
                 }
             }
+        }
+        Command::SetTimezone(timezone) => {
+            set_user_timezone(conn, user_id, msg.chat.id, &timezone);
+            bot.send_message(
+                msg.chat.id,
+                format!(
+                    "Hi, {mentioned_user}, your timezone is set to <code>UTC{timezone}</code>."
+                ),
+            )
+            .await?;
         }
         Command::Stop => {
             clear_reminder_time(conn, msg.chat.id, user_id);
