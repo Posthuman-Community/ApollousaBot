@@ -9,6 +9,7 @@ use tokio::time::{interval, Duration};
 mod bot;
 mod db;
 mod scheduler;
+mod utils;
 
 #[tokio::main]
 async fn main() {
