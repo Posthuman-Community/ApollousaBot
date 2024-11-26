@@ -18,14 +18,21 @@ async fn main() {
     let bot = Arc::new(Bot::from_env().parse_mode(ParseMode::Html));
     let bot_clone = Arc::clone(&bot);
 
-    tokio::spawn(async move {
+    let command_task = tokio::spawn(async move {
         Command::repl((*bot_clone).clone(), reply).await;
     });
 
-    let mut interval = interval(Duration::from_secs(60));
+    let schedual_task = tokio::spawn(async move {
+        let mut interval = interval(Duration::from_secs(60));
 
-    loop {
-        interval.tick().await;
-        schedule_reminders(&bot).await;
+        loop {
+            interval.tick().await;
+            schedule_reminders(&bot).await;
+        }
+    });
+
+    tokio::select! {
+        _ = command_task => {},
+        _ = schedual_task => {}
     }
 }
