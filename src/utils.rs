@@ -35,6 +35,7 @@ impl std::str::FromStr for TimezoneOffest {
 }
 
 impl TimezoneOffest {
+    #[allow(dead_code)]
     fn new(offset_hours: i32, offset_minutes: i32) -> Self {
         Self {
             offset_hours,
@@ -70,5 +71,20 @@ mod tests {
         let timezone_offset = TimezoneOffest::new(2, 30);
         let duration = timezone_offset.to_duration();
         assert_eq!(duration, 2 * 3600 + 30 * 60);
+    }
+
+    #[test]
+    fn test_calc_offset_utc() {
+        use chrono::{FixedOffset, Utc};
+
+        let timezone_offset = TimezoneOffest::new(-8, 00);
+        let duration = timezone_offset.to_duration();
+        let ew_offset = Utc::now().with_timezone(&FixedOffset::east_opt(duration).unwrap());
+        println!("UTC-8:00 -> {}", ew_offset);
+
+        let timezone_offset = TimezoneOffest::new(8, 00);
+        let duration = timezone_offset.to_duration();
+        let ew_offset = Utc::now().with_timezone(&FixedOffset::east_opt(duration).unwrap());
+        println!("UTC+8:00 -> {}", ew_offset);
     }
 }
