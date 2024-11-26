@@ -20,7 +20,7 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
         Command::Help => {
             bot.send_message(
                 msg.chat.id,
-                format!("Hi, {mentioned_user}, Welcome to the Exercise Reminder Bot! 😉\n\nPlease use <code>/settime HH:MM</code> to set the reminder time.\n\nAnd use <code>/settimezone +1:00</code> <b>(according to your location)</b> to accurate the reminder.\n\nIf you are not sure your timezone, please check this <a href=\"https://en.wikipedia.org/wiki/List_of_UTC_offsets\">page</a>.",
+                format!("Hi, {mentioned_user}, Welcome to the Exercise Reminder Bot! 😉\n\nPlease use <code>/settime HH:MM</code> to set the reminder time.\n\nAnd use <code>/settimezone +01:00</code> <b>(according to your location)</b> to accurate the reminder.\n\nIf you are not sure your timezone, please check this <a href=\"https://en.wikipedia.org/wiki/List_of_UTC_offsets\">page</a>.",
                 ),
             )
             .await?;
@@ -54,7 +54,7 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
             }
         }
         Command::SetTimezone(timezone) => {
-            set_user_timezone(conn, user_id, msg.chat.id, &timezone);
+            set_user_timezone(conn, user_id, msg.chat.id, timezone.as_str());
             bot.send_message(
                 msg.chat.id,
                 format!(

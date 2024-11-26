@@ -1,7 +1,6 @@
 use crate::db::schema::timezone::dsl::{
     chat_id as tz_chat_id, timezone, user_id as tz_user_id, user_timezone,
 };
-
 use crate::db::schema::users::dsl::{
     chat_id as u_chat_id, reminder_time, user_id as u_user_id, username, users,
 };
@@ -37,13 +36,17 @@ pub fn set_user_timezone(
     _chat_id: ChatId,
     _user_timezone: &str,
 ) {
+    println!(
+        "UserId: {}, ChatId: {}, UserTimezone: {}",
+        _user_id.0, _chat_id.0, _user_timezone
+    );
     diesel::insert_into(timezone)
         .values((
-            tz_chat_id.eq(_chat_id.0),
             tz_user_id.eq(i64::try_from(_user_id.0).unwrap()),
+            tz_chat_id.eq(_chat_id.0),
             user_timezone.eq(_user_timezone),
         ))
-        .on_conflict(tz_chat_id)
+        .on_conflict(tz_user_id)
         .do_update()
         .set(user_timezone.eq(_user_timezone))
         .execute(conn)
