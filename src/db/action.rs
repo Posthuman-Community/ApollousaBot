@@ -1,3 +1,4 @@
+use crate::db::schema::quotes::dsl::*;
 use crate::db::schema::users::dsl::*;
 use diesel::prelude::*;
 use teloxide::types::{ChatId, UserId};
@@ -61,4 +62,11 @@ pub fn clear_reminder_time(conn: &mut SqliteConnection, _chat_id: ChatId, _user_
 
 pub fn get_user_reminders(conn: &mut SqliteConnection) -> Vec<Users> {
     users.load::<Users>(conn).expect("Error loading user")
+}
+
+pub fn get_quotes(conn: &mut SqliteConnection) -> Vec<String> {
+    quotes
+        .select(msg)
+        .load::<String>(conn)
+        .expect("Error loading Quotes")
 }

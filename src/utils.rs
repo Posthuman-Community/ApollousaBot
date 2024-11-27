@@ -1,3 +1,5 @@
+use rand::Rng;
+
 #[derive(Debug, PartialEq)]
 pub struct TimezoneOffest {
     offset_hours: i32,
@@ -47,6 +49,19 @@ impl TimezoneOffest {
     }
 }
 
+pub fn get_random_quote(quotes: &[String]) -> Option<&str> {
+    if !quotes.is_empty() {
+        let length = quotes.len();
+        let mut rng = rand::thread_rng();
+        let random_index = rng.gen_range(0..length);
+        let random_quote = &quotes[random_index];
+
+        Some(random_quote)
+    } else {
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -86,5 +101,26 @@ mod tests {
         let duration = timezone_offset.to_duration();
         let ew_offset = Utc::now().with_timezone(&FixedOffset::east_opt(duration).unwrap());
         println!("UTC+8:00 -> {}", ew_offset);
+    }
+
+    #[test]
+    fn test_get_random_quote() {
+        let quotes = vec![
+            String::from("wwww"),
+            String::from("vvvv"),
+            String::from("xxxx"),
+        ];
+
+        let random_quote = get_random_quote(&quotes);
+        assert!(random_quote.is_some());
+
+        if let Some(quote) = random_quote {
+            println!("{quote}");
+        }
+
+        let empty_quotes: Vec<String> = vec![];
+
+        let random_quote = get_random_quote(&empty_quotes);
+        assert!(random_quote.is_none());
     }
 }

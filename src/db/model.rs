@@ -1,4 +1,4 @@
-use crate::db::schema::users;
+use crate::db::schema::{quotes, users};
 use diesel::prelude::*;
 
 #[derive(Queryable, Selectable)]
@@ -10,4 +10,14 @@ pub struct Users {
     pub username: String,
     pub reminder_time: String,
     pub tz_offset: Option<String>,
+}
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = quotes)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Quotes {
+    #[allow(dead_code)]
+    pub id: i32,
+    #[allow(dead_code)]
+    pub msg: String,
 }
