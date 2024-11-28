@@ -12,8 +12,8 @@ diesel::table! {
         chat_id -> BigInt,
         user_id -> BigInt,
         username -> Text,
-        reminder_time -> Text,
         tz_offset -> Nullable<Text>,
+        reminder_time -> Nullable<Text>,
     }
 }
 

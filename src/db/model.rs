@@ -1,14 +1,14 @@
 use crate::db::schema::{quotes, users};
 use diesel::prelude::*;
 
-#[derive(Queryable, Selectable)]
+#[derive(Debug, Queryable, Selectable)]
 #[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Users {
     pub chat_id: i64,
     pub user_id: i64,
     pub username: String,
-    pub reminder_time: String,
+    pub reminder_time: Option<String>,
     pub tz_offset: Option<String>,
 }
 

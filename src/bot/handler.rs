@@ -2,6 +2,7 @@ use crate::{
     bot::commands::Command,
     db::action::{clear_reminder_time, set_reminder_time, set_user_timezone},
 };
+use regex::Regex;
 use teloxide::{adaptors::DefaultParseMode, prelude::*, utils::html};
 
 use chrono::naive::NaiveTime;
@@ -54,14 +55,28 @@ pub async fn reply(bot: Bot, msg: Message, command: Command) -> ResponseResult<(
             }
         }
         Command::SetTimezone(timezone) => {
-            set_user_timezone(conn, user_id, msg.chat.id, timezone.as_str());
-            bot.send_message(
-                msg.chat.id,
-                format!(
-                    "Hi, {mentioned_user}, your timezone is set to <code>UTC{timezone}</code>."
-                ),
-            )
-            .await?;
+            let tz_pattern =
+                Regex::new(r"^(\+|-)\d{2}:\d{2}$").expect("Failed to initialize regex pattern");
+
+            match tz_pattern.is_match(&timezone) {
+                true => {
+                    set_user_timezone(conn, user_id, msg.chat.id, &username, timezone.as_str());
+                    bot.send_message(
+                            msg.chat.id,
+                            format!(
+                                "Hi, {mentioned_user}, your timezone is set to <code>UTC{timezone}</code>."
+                            ),
+                        )
+                        .await?;
+                }
+                false => {
+                    bot.send_message(
+                        msg.chat.id,
+                        "Invalid timezone format. Please use the format <code>±HH:MM</code>.",
+                    )
+                    .await?;
+                }
+            }
         }
         Command::Stop => {
             clear_reminder_time(conn, msg.chat.id, user_id);
