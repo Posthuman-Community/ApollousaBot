@@ -22,23 +22,34 @@ pub async fn schedule_reminders(bot: &Arc<Bot>) {
 
     for user in users_to_remind {
         if let Some(tzoffset) = user.tz_offset.as_ref() {
-            let user_timezone: TimezoneOffest = tzoffset.parse().unwrap();
+            if let Ok(user_timezone) = tzoffset.parse::<TimezoneOffest>() {
+                let duration_secs = user_timezone.to_duration();
+                let user_utc_time = Utc::now()
+                    .with_timezone(&FixedOffset::east_opt(duration_secs).unwrap())
+                    .format("%H:%M")
+                    .to_string();
 
-            let duration_secs = user_timezone.to_duration();
-            let user_utc_time = Utc::now()
-                .with_timezone(&FixedOffset::east_opt(duration_secs).unwrap())
-                .format("%H:%M")
-                .to_string();
-
-            if user_utc_time == user.reminder_time {
-                let _user_id = UserId(u64::try_from(user.user_id).unwrap());
-                let _username = user.username;
-                let mentioned_user = html::user_mention(_user_id, &_username);
-                let notification = format!("{mentioned_user} {selected_quote}");
-                bot.send_message(ChatId(user.chat_id), notification)
-                    .await
-                    .unwrap();
+                if let Some(reminder) = &user.reminder_time {
+                    if user_utc_time == *reminder {
+                        let _user_id = UserId(u64::try_from(user.user_id).unwrap());
+                        let _username = user.username;
+                        let mentioned_user = html::user_mention(_user_id, &_username);
+                        let notification = format!("{mentioned_user} {selected_quote}");
+                        bot.send_message(ChatId(user.chat_id), notification)
+                            .await
+                            .unwrap();
+                    }
+                } else {
+                    eprintln!("Invalid reminder: {:?}", &user.reminder_time)
+                }
+            } else {
+                eprintln!("Failed to parse timezone offset: {}", tzoffset)
             }
+        } else {
+            eprintln!(
+                "User {} does not have a timezone offset set.",
+                user.username
+            )
         }
     }
 }

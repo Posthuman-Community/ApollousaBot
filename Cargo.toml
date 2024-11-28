@@ -12,6 +12,7 @@ diesel = { version = "2.2.4", features = ["sqlite"] }
 chrono = "0.4.38"
 dotenvy = "0.15.7"
 rand = "0.8.5"
+regex = "1.11.1"
 
 [profile.release]
 debug = false
