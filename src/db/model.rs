@@ -1,7 +1,7 @@
 use crate::db::schema::{quotes, users};
 use diesel::prelude::*;
 
-#[derive(Debug, Queryable, Selectable)]
+#[derive(Debug, Queryable, Selectable, QueryableByName, Insertable)]
 #[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Users {

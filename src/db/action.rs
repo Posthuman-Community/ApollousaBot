@@ -13,7 +13,7 @@ pub fn set_reminder_time(
     time: &str,
 ) {
     println!(
-        "set_reminder_time -> UserId: {}, ChatId: {}, Username: {} , time: {}",
+        "set_reminder_time -> UserId: {}, ChatId: {}, Username: {}, Time: {}",
         _user_id.0, _chat_id.0, _username, time
     );
     diesel::insert_into(users)
@@ -23,7 +23,7 @@ pub fn set_reminder_time(
             username.eq(_username),
             reminder_time.eq(time),
         ))
-        .on_conflict(chat_id)
+        .on_conflict((chat_id, user_id))
         .do_update()
         .set(reminder_time.eq(time))
         .execute(conn)
@@ -38,7 +38,7 @@ pub fn set_user_timezone(
     _user_timezone: &str,
 ) {
     println!(
-        "set_user_timezone -> UserId: {}, ChatId: {}, Username: {} ,UserTimezone: {}",
+        "set_user_timezone -> UserId: {}, ChatId: {}, Username: {}, UserTimezone: {}",
         _user_id.0, _chat_id.0, _username, _user_timezone
     );
     let user_exists = users

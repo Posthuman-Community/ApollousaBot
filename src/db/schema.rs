@@ -8,7 +8,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    users (chat_id) {
+    users (chat_id, user_id) {
         chat_id -> BigInt,
         user_id -> BigInt,
         username -> Text,
